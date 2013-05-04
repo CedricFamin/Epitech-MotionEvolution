@@ -3,7 +3,7 @@
 RobotManager::RobotManager()
 {
 	this->_exit = false;
-	this->_angularSpeed = 10;
+	this->_angularSpeed = 1;
 	this->initRobot();
 	this->runSequence();
 	this->pauseAndExit();

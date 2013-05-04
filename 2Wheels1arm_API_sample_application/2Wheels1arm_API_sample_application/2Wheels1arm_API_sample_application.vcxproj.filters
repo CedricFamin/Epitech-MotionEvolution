@@ -50,5 +50,8 @@
     <ClInclude Include="RobotManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GenericGeneticAlgorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
