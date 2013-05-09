@@ -59,15 +59,18 @@ void RobotManager::runSequence()
 	{
 		MovementGeneticAlgorithm::PopulationType & population = geneticAlgorithm.ChromosomePopulation();
 		double averageFitness = 0;
+		debugger.CleanPhaseDuration();
 
 		for (MovementChromosome & chromosome : population)
 		{
+			debugger.AddPhaseDurationValue(chromosome.GetValue().PhaseDuration());
+
 			this->_robot->Init();
 			Sleep(500);
 			ApiBlli::Position beginPos = *this->_robot->GetPosition();
 			chromosome.Fitness(0.0f);
 			MovementSequence const & movementSequence = chromosome.GetValue();
-
+			
 			for (unsigned int i = 0; i < 10; ++i)
 			{
 				MovementSequence::ArmMove const & move = (i%2) ? movementSequence.SecondPhase() : movementSequence.FirstPhase();
