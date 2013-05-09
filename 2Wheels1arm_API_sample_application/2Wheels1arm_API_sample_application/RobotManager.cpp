@@ -1,5 +1,8 @@
 #include "RobotManager.h"
 
+#include "ChartDebugger.h"
+#include "MovementGeneticAlgorithm.h"
+
 RobotManager::RobotManager()
 {
 	this->_exit = false;
@@ -47,24 +50,82 @@ void RobotManager::pauseAndExit()
 
 void RobotManager::runSequence()
 {
-	int index;
+	static unsigned int TIME_MULTIPLIER = 10;
+	MovementGeneticAlgorithm geneticAlgorithm;
+	ChartDebugger debugger;
 
-	for (int i=0; i<100; i++)
+	geneticAlgorithm.CreateInitialPopulation();
+	while (1)
 	{
-		index = 512;
-		if (i % 2 == 0)
-			index = 400;
-		this->_robot->SetIndex(ApiBlli::Leg::FINGER, index, this->_angularSpeed);
-		this->_robot->SetIndex(ApiBlli::Leg::ARM, index, this->_angularSpeed);
-		this->_robot->SetIndex(ApiBlli::Leg::SHOULDER, index, this->_angularSpeed);
-		printLegInCollision();
-		printFingerTouching();
-		printPlatineTouching();
-		printGyroValues();
-		Sleep(500);
+		MovementGeneticAlgorithm::PopulationType & population = geneticAlgorithm.ChromosomePopulation();
+		double averageFitness = 0;
+
+		for (MovementChromosome & chromosome : population)
+		{
+			this->_robot->Init();
+			Sleep(500);
+			ApiBlli::Position beginPos = *this->_robot->GetPosition();
+			chromosome.Fitness(0.0f);
+			MovementSequence const & movementSequence = chromosome.GetValue();
+
+			for (unsigned int i = 0; i < 10; ++i)
+			{
+				MovementSequence::ArmMove const & move = (i%2) ? movementSequence.SecondPhase() : movementSequence.FirstPhase();
+
+				this->_robot->SetIndex(ApiBlli::Leg::FINGER, move.fingerMove.FinalPosition(), move.fingerMove.AngularSpeed());
+				this->_robot->SetIndex(ApiBlli::Leg::ARM, move.armMove.FinalPosition(), move.armMove.AngularSpeed());
+				this->_robot->SetIndex(ApiBlli::Leg::SHOULDER, move.shoulderMove.FinalPosition(), move.shoulderMove.AngularSpeed());
+				//chromosome.Fitness(chromosome.Fitness() + EvalRobot());
+				Sleep(movementSequence.PhaseDuration() / TIME_MULTIPLIER);
+			}
+			ApiBlli::Position lastPos = *this->_robot->GetPosition();
+			chromosome.Fitness(
+				fabs(beginPos.x - lastPos.x) -
+				fabs(beginPos.y - lastPos.y) -
+				fabs(beginPos.z - lastPos.z)
+				);
+			std::cout << "Fitness " << chromosome.Fitness() << std::endl;
+			averageFitness += chromosome.Fitness();
+		}
+
+		averageFitness/= population.size();
+		MovementChromosome const & chromosome = geneticAlgorithm.GetBestChromosome();
+		debugger.AddGenerationData(averageFitness, chromosome.Fitness());
+		debugger.Render();
+
+		std::cout << "Generation " << geneticAlgorithm.GenerationNumber() << std::endl 
+			<< "Best robot: score " << chromosome.Fitness() << std::endl
+			<< "Average Fitness " << averageFitness << std::endl;
+
+		{
+			this->_robot->Init();
+			Sleep(500);
+			MovementSequence const & movementSequence = chromosome.GetValue();
+			for (unsigned int i = 0; i < 10; ++i)
+			{
+				MovementSequence::ArmMove const & move = (i%2) ? movementSequence.SecondPhase() : movementSequence.FirstPhase();
+				this->_robot->SetIndex(ApiBlli::Leg::FINGER, move.fingerMove.FinalPosition(), move.fingerMove.AngularSpeed() * TIME_MULTIPLIER);
+				this->_robot->SetIndex(ApiBlli::Leg::ARM, move.armMove.FinalPosition(), move.armMove.AngularSpeed() * TIME_MULTIPLIER);
+				this->_robot->SetIndex(ApiBlli::Leg::SHOULDER, move.shoulderMove.FinalPosition(), move.shoulderMove.AngularSpeed() * TIME_MULTIPLIER);
+				Sleep(movementSequence.PhaseDuration() / TIME_MULTIPLIER);
+			}
+		}
+		std::cout << "New generation" << std::endl;
+		geneticAlgorithm.MakeEvolution();
+		
 	}
 }
 
+float RobotManager::EvalRobot()
+{
+	float result = 0.0f;
+	ApiBlli::GyroValues * values =this->_robot->GetGyroValues();
+
+	result += values->LinearAccelerations[0] * values->LinearAccelerations[0];
+	result += values->LinearAccelerations[1] * values->LinearAccelerations[1];
+	result += values->LinearAccelerations[2] * values->LinearAccelerations[2];
+	return result;
+}
 void RobotManager::printLegInCollision()
 {
 	if (this->_robot->IsInColision())

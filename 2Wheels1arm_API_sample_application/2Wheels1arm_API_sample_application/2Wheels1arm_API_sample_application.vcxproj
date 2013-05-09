@@ -19,12 +19,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -36,7 +38,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>%MARILOU_INSTALL_DIR%SDKs\Moda\includes;..\..\ChartDirector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>%MARILOU_INSTALL_DIR%SDKs\Moda\libs;..\..\..\Epitech-MotionEvolution\ChartDirector\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -47,7 +52,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files\Marilou2010\SDKs\Moda\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>moda-x86-win-vc2010.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>moda-x86-win-vc2010.lib;wsock32.lib;chartdir51.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
       <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -73,15 +78,22 @@
   <ItemGroup>
     <ClCompile Include="ApiBlli.cpp" />
     <ClCompile Include="Blli.cpp" />
+    <ClCompile Include="ChartDebugger.cpp" />
     <ClCompile Include="Leg.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Movement.cpp" />
+    <ClCompile Include="MovementGeneticAlgorithm.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="RobotManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApiBlli.h" />
     <ClInclude Include="Blli.h" />
+    <ClInclude Include="ChartDebugger.h" />
+    <ClInclude Include="GenericGeneticAlgorithm.h" />
     <ClInclude Include="Leg.h" />
+    <ClInclude Include="Movement.h" />
+    <ClInclude Include="MovementGeneticAlgorithm.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="RobotManager.h" />
   </ItemGroup>

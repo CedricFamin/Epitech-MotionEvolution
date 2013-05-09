@@ -15,6 +15,7 @@ public:
 	void printGyroValues();
 	void printFingerTouching();
 	void printPlatineTouching();
+	float EvalRobot();
 
 private:
 	ApiBlli::Robot* _robot;
