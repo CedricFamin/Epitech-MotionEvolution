@@ -11,7 +11,7 @@ public:
 	virtual ~MovementChromosome(void)  {}
 
 	virtual float Fitness(void) const { return this->_fitnessScore; }
-	void Fitness(float value) { this->_fitnessScore = value; }
+	void Fitness(float value) { this->_fitnessScore = value > 0 ? value : 0; }
 	virtual MovementSequence& GetValue(void) { return this->_data; } 
 	virtual MovementSequence const & GetValue(void) const { return this->_data; } 
 private:
@@ -22,10 +22,13 @@ private:
 class MovementGeneticAlgorithm : public AGeneticAlgorithm<MovementChromosome>
 {
 public:
+	typedef std::pair<MovementChromosome *, double> SelectionChromosomeType;
+	typedef std::list<SelectionChromosomeType> WheelType;
+	
 	MovementGeneticAlgorithm(void);
 	virtual ~MovementGeneticAlgorithm(void);
 
-	virtual MovementChromosome const & GetBestChromosome() const
+	virtual MovementChromosome & GetBestChromosome()
 	{
 		unsigned int index_max = 0;
 		float max_score = FLT_MIN;
@@ -42,6 +45,8 @@ public:
 
 protected:
 	// override this method
+	virtual void PrepareSelection();
+	virtual FatherMotherType Selection();
 	virtual MovementChromosome CreateInitialRandomChromosome();
 	virtual PopulationType GetSurvivors();
 	virtual void Mutate(PopulationType & population);
@@ -61,6 +66,8 @@ private:
 	std::uniform_int_distribution<int>			_randomBool;
 	std::uniform_real_distribution<double>		_randomProbabilistic;
 	std::mt19937								_randomEngine;
+
+	WheelType _wheel;
 
 };
 

@@ -82,6 +82,7 @@
     <ClCompile Include="Leg.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Movement.cpp" />
+    <ClCompile Include="MovementEvaluator.cpp" />
     <ClCompile Include="MovementGeneticAlgorithm.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="RobotManager.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="GenericGeneticAlgorithm.h" />
     <ClInclude Include="Leg.h" />
     <ClInclude Include="Movement.h" />
+    <ClInclude Include="MovementEvaluator.h" />
     <ClInclude Include="MovementGeneticAlgorithm.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="RobotManager.h" />

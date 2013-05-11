@@ -60,7 +60,7 @@ namespace
 // MovementGeneticAlgorithm
 // --------------------------------------------------------------
 MovementGeneticAlgorithm::MovementGeneticAlgorithm(void)
-	: AGeneticAlgorithm<MovementChromosome>(50, 25)
+	: AGeneticAlgorithm<MovementChromosome>(20, 10)
 	, _randomAngularSpeed(0, ANGULAR_SPEED_MAX)
 	, _randomPosition(0, POSITION_MAX)
 	, _randomBool(0, 1)
@@ -150,7 +150,9 @@ struct ChromosomeComparator
 
 MovementGeneticAlgorithm::PopulationType MovementGeneticAlgorithm::GetSurvivors()
 {
+	// elitisme : les meilleurs sont sauvegarde pour la generation suivante.
 	PopulationType population;
+
 	std::priority_queue<MovementChromosome, std::vector<MovementChromosome>, ChromosomeComparator> chromosomeQueue;
 	for (MovementChromosome & chromosome : this->_chromosomePopulation)
 	{
@@ -222,4 +224,48 @@ void MovementGeneticAlgorithm::Mutate(PopulationType & population)
 		if (RandomProbabilistic() <= MUTATION_PROBABILTY)
 			chromosome.GetValue().PhaseDuration(RandomDuration());
 	}
+}
+
+void MovementGeneticAlgorithm::PrepareSelection()
+{
+	// preparation de la roulette
+	this->_wheel.clear();
+
+	// step 1 : recuperer la fitness total
+	double fitnessTotal = 0;
+	for (MovementChromosome const & chromosome : this->_chromosomePopulation)
+	{
+		fitnessTotal += chromosome.Fitness();
+	}
+
+	// step 2 : creation de la roulette
+
+	for (MovementChromosome & chromosome : this->_chromosomePopulation)
+	{
+		this->_wheel.push_back(std::make_pair(&chromosome, chromosome.Fitness() / fitnessTotal));
+	}
+}
+
+MovementGeneticAlgorithm::FatherMotherType MovementGeneticAlgorithm::Selection()
+{
+	FatherMotherType result(0, 0);
+
+	double selectFather = this->RandomProbabilistic();
+	double selectMother = this->RandomProbabilistic();
+	double currentRange = 0;
+	for (SelectionChromosomeType const & selection : this->_wheel)
+	{
+		currentRange += selection.second;
+		if (selectFather <= currentRange && result.first == 0)
+			result.first = selection.first;
+		if (selectMother <= currentRange && result.second == 0)
+			result.second = selection.first;
+	
+	}
+
+	if (result.first == 0 || result.second == 0)
+	{
+		std::cout << "ERROR : Selection failed, ca va crasher" << std::endl;
+	}
+	return result;
 }

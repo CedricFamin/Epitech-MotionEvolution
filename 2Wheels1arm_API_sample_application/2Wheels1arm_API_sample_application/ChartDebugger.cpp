@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "ChartDebugger.h"
 
 
@@ -16,7 +18,7 @@ ChartDebugger::~ChartDebugger(void)
 // --------------------------------------------------------------
 void ChartDebugger::AddGenerationData(double averageFitness, double bestFitness)
 {
-	this->_generationData.push_back(this->_generationData.size() + 1);
+	this->_generationData.push_back(this->_generationData.size());
 	this->_averageFitnessScore.push_back(averageFitness);
 	this->_bestRobotFitnessScore.push_back(bestFitness);
 }
@@ -75,7 +77,7 @@ void ChartDebugger::RenderFitnessGraph()
 // --------------------------------------------------------------
 void ChartDebugger::CleanPhaseDuration()
 {
-	this->_phaseDurationRepartition.resize(500);
+	this->_phaseDurationRepartition.resize(500 + 1);
 	for (double & value : this->_phaseDurationRepartition)
 		value = 0;
 }
@@ -111,8 +113,12 @@ void ChartDebugger::RenderPhaseDurationRepartition()
     // color (cccccc)
     c->setPlotArea(55, 58, 520, 195, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
     c->addLegend(55, 32, false, "arialbd.ttf", 9)->setBackground(Chart::Transparent);
-    c->addTitle("Phase duration repartition", "timesbi.ttf", 15, 0xffffff)->setBackground(0x000000, -1, 1);
-    c->yAxis()->setTitle("Occurence");
+	
+	std::ostringstream oss;
+    oss << "Phase duration repartition: Generation "  << this->_generationData.size();
+	c->addTitle(oss.str().c_str(), "timesbi.ttf", 15, 0xffffff)->setBackground(0x000000, -1, 1);
+    
+	c->yAxis()->setTitle("Occurence");
     c->xAxis()->setTitle("Phase duration");
 
     // Set the axes width to 2 pixels

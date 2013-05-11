@@ -19,6 +19,7 @@ class AGeneticAlgorithm
 {
 public:
 	typedef std::vector<Chromosome> PopulationType;
+	typedef std::pair<Chromosome*, Chromosome*> FatherMotherType;
 
 	AGeneticAlgorithm(unsigned int populationSize, unsigned int generationSurviveCount)
 	: _chromosomePopulationSize(populationSize)
@@ -34,18 +35,21 @@ public:
 
 	void MakeEvolution()
 	{
+		// elitisme;
 		PopulationType newPopulation = this->GetSurvivors();
 
-		if (newPopulation.size() == 0)
-			return ;
+		// selection/reprod/mutation
 		unsigned int i = 0;
+		this->PrepareSelection();
 		while (newPopulation.size() < this->_chromosomePopulationSize)
 		{
 			// remarque, on peu faire un BB tout seul ...
-			unsigned int fatherIndex = i;
-			unsigned int motherIndex = (++i) % this->_generationSurvivorCount;
+			// selection
+			FatherMotherType fatherMother = this->Selection();
 
-			PopulationType newChromosome = this->CrossOver(newPopulation[fatherIndex], newPopulation[motherIndex]);
+			// crossover
+			PopulationType newChromosome = this->CrossOver(*fatherMother.first, *fatherMother.second);
+			// mutation
 			this->Mutate(newChromosome);
 			newPopulation.insert(newPopulation.end(), newChromosome.begin(), newChromosome.end());
 		}
@@ -54,7 +58,7 @@ public:
 		_chromosomePopulation = newPopulation;
 	}
 
-	virtual Chromosome const & GetBestChromosome() const = 0;
+	virtual Chromosome & GetBestChromosome() = 0;
 	unsigned int GenerationNumber() const { return this->_generationNumber; }
 
 	void CreateInitialPopulation()
@@ -65,6 +69,8 @@ public:
 
 protected:
 	// override this method
+	virtual void PrepareSelection() {}
+	virtual FatherMotherType Selection() = 0;
 	virtual Chromosome CreateInitialRandomChromosome() = 0;
 	virtual PopulationType GetSurvivors() = 0;
 	virtual void Mutate(PopulationType & population) = 0;

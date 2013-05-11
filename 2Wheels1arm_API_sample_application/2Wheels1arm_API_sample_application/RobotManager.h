@@ -3,6 +3,9 @@
 #include <fstream>
 #include <iostream>
 
+#include "ChartDebugger.h"
+#include "MovementGeneticAlgorithm.h"
+
 class RobotManager
 {
 public:
@@ -18,6 +21,8 @@ public:
 	float EvalRobot();
 
 private:
+	void RunSequence(MovementChromosome & chromosome);
+
 	ApiBlli::Robot* _robot;
 	int							 _timer;
 	float						 _angularSpeed;
@@ -26,5 +31,6 @@ private:
 	bool						 _exit;
 	ModaCPP::DeviceAccelGyro	*_gyro;
 	ModaCPP::DeviceContact		*_contact_platine;
+	ChartDebugger				_debugger;
 };
 
