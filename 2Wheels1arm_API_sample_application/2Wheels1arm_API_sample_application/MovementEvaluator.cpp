@@ -40,22 +40,17 @@ double MovementEvaluator::GetScore() const
 				fabs(this->_beginPos.z - this->_endPos.z);
 	float vitesse = dist * 1000.0f /  ((float)this->_duration);
 	bool xdeplacement = (this->_beginPos.x - this->_endPos.x) > 0;
-	bool ydeplacement = (this->_beginPos.y - this->_endPos.y) == 0;
-	bool zdeplacement = (this->_beginPos.z - this->_endPos.z) == 0;
+	bool ydeplacement = fabs(this->_beginPos.y - this->_endPos.y) > .01f;
+	bool zdeplacement = fabs(this->_beginPos.z - this->_endPos.z) < .1f;
+
 	std::cout << "Evaluator {" << dist << ", " << vitesse << ", " << xdeplacement << ", " << ydeplacement << ", " << zdeplacement << "}" << std::endl;
 	
-	resultAsInt += std::min(256, (int)(dist * 128)) << 0;
-	/*resultAsInt += this->_secure << 4;
-	{
-		// vecteur deplacement
-		resultAsInt += zdeplacement << 1;
-		resultAsInt += ydeplacement << 2;
-		resultAsInt += xdeplacement << 3;
-	}
-	resultAsInt += std::min(8, (int)vitesse) << 5;
-	*/
-
-
+	// Bonus distance parcourue
+	resultAsInt += (this->_beginPos.x - this->_endPos.x) * 1000;
+	// Malus pas tout droit
+	// resultAsInt -= (this->_beginPos.y - this->_endPos.y) * 500;
+	// Bonus si on ne se met pas en danger
+	resultAsInt -= this->_secure * 200;
 
 	return static_cast<double>(resultAsInt);
 }

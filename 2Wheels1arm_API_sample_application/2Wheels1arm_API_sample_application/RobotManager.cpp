@@ -55,6 +55,8 @@ void RobotManager::RunSequence(MovementChromosome & chromosome)
 	MovementEvaluator evaluator;
 
 	this->_debugger.AddPhaseDurationValue(chromosome.GetValue().PhaseDuration());
+	this->_debugger.AddPhaseMove(chromosome.GetValue());
+
 	this->_robot->Init();
 	Sleep(500);
 	evaluator.Init(*this->_robot->GetPosition());
