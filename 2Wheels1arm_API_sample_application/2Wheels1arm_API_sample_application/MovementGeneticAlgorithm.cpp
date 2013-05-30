@@ -54,19 +54,21 @@ namespace
 	static unsigned int ANGULAR_SPEED_MAX = 64;
 	static unsigned int PHASE_DURATION_MAX = 500;
 	static double MUTATION_PROBABILTY = 0.01;
+	static unsigned int MAX_GENERATION = 50;
 }
 
 // --------------------------------------------------------------
 // MovementGeneticAlgorithm
 // --------------------------------------------------------------
 MovementGeneticAlgorithm::MovementGeneticAlgorithm(void)
-	: AGeneticAlgorithm<MovementChromosome>(20, 10)
+	: AGeneticAlgorithm<MovementChromosome>(20, 3)
 	, _randomAngularSpeed(0, ANGULAR_SPEED_MAX)
 	, _randomPosition(0, POSITION_MAX)
 	, _randomBool(0, 1)
 	, _randomDuration(0, PHASE_DURATION_MAX)
 	, _randomProbabilistic(0.0f, 1.0f)
 	, _randomEngine(time(NULL))
+	, _scaling(0.0f)
 {
 
 }
@@ -228,6 +230,11 @@ void MovementGeneticAlgorithm::Mutate(PopulationType & population)
 
 void MovementGeneticAlgorithm::PrepareSelection()
 {
+	// Calcul du scaling
+	if (this->_generationNumber < MAX_GENERATION)
+		this->_scaling = std::powf(std::tanf(((this->_generationNumber+1.f) * 3.14f) / (2.f * (MAX_GENERATION + 1.f))), .1f);
+	else this->_scaling = 2.0f;
+	std::cout << "Scaling : " << this->_scaling << std::endl;
 	// preparation de la roulette
 	this->_wheel.clear();
 
@@ -235,14 +242,14 @@ void MovementGeneticAlgorithm::PrepareSelection()
 	double fitnessTotal = 0;
 	for (MovementChromosome const & chromosome : this->_chromosomePopulation)
 	{
-		fitnessTotal += chromosome.Fitness();
+		fitnessTotal += chromosome.Fitness() * this->_scaling;
 	}
 
 	// step 2 : creation de la roulette
 
 	for (MovementChromosome & chromosome : this->_chromosomePopulation)
 	{
-		this->_wheel.push_back(std::make_pair(&chromosome, chromosome.Fitness() / fitnessTotal));
+		this->_wheel.push_back(std::make_pair(&chromosome, (chromosome.Fitness() * this->_scaling) / fitnessTotal));
 	}
 }
 

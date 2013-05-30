@@ -68,6 +68,7 @@ private:
 	std::mt19937								_randomEngine;
 
 	WheelType _wheel;
+	float _scaling;
 
 };
 
