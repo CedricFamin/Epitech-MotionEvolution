@@ -54,7 +54,7 @@ namespace
 	static unsigned int ANGULAR_SPEED_MAX = 64;
 	static unsigned int PHASE_DURATION_MAX = 500;
 	static double MUTATION_PROBABILTY = 0.01;
-	static unsigned int MAX_GENERATION = 50;
+	static unsigned int MAX_GENERATION = 20;
 }
 
 // --------------------------------------------------------------
